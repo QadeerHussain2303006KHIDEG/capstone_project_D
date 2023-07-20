@@ -1,0 +1,25 @@
+version: '3'
+services:
+  redis-server:
+    image: redis
+    ports:
+      - 6379:6379
+  etl-pipeline:
+    build:
+      context: ./src/services/etl
+      dockerfile: Dockerfile
+    volumes:
+      - spark_logs:/var/log
+    depends_on:
+      - redis-server
+  matching-api:
+    build:
+      context: ./src/services/matching
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis-server
+      - etl-pipeline
+volumes:
+  spark_logs:
